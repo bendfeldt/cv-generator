@@ -1,6 +1,6 @@
 {
   "permissions": {
     "allow": ["Bash(ls:*)","Bash(git status:*)","Bash(git diff:*)","Bash(git log:*)","Bash(cat:*)","Bash(grep:*)","Read(*)"],
-    "deny": ["Bash(rm -rf:*)","Bash(git push --force:*)","Read(./private/**)","Read(./out/**)"]
+    "deny": ["Bash(rm -rf:*)","Bash(git push --force:*)","Read(./out/**)"]
   }
 }

@@ -58,6 +58,16 @@
   },
   {
     "category": "functional",
+    "description": "validate --locale <code> reports every localized string missing that language",
+    "steps": [
+      "Remove one da value in a copy of the example",
+      "Run validate --locale da on the copy",
+      "Exit 1 naming the file, line and key"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
     "description": "Runtime prompt asks for the fields the profile requires and validates each answer",
     "steps": [
       "Run cvgen build --profile full-en",
@@ -106,20 +116,31 @@
   },
   {
     "category": "ux",
-    "description": "sidebar theme renders HTML with sidebar and main regions from the profile",
+    "description": "sidebar LaTeX theme places sections in sidebar and main regions from the profile",
     "steps": [
       "Build full-en",
-      "Open out/*.html",
+      "Open out/*.pdf",
       "Sidebar shows photo, contact, skills, languages; main shows summary, work, projects"
     ],
     "passes": false
   },
   {
     "category": "functional",
-    "description": "PDF output built from the same HTML, A4, fonts embedded",
+    "description": "PDF compiled with latexmk -lualatex -no-shell-escape in a temp dir that is deleted afterwards; A4, fonts embedded",
     "steps": [
       "Build full-en",
-      "pdffonts shows embedded fonts; page size is A4"
+      "pdffonts shows embedded fonts; page size is A4",
+      "No .tex, .log or photo copy remains on disk outside out/"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "LaTeX special characters and injection attempts in content and prompt answers print literally",
+    "steps": [
+      "Put & % $ # _ { } ~ ^ \\ and \\input{/etc/passwd} and \\write18{id} in example strings",
+      "Build",
+      "pdftotext shows them literally; no file was read or command run"
     ],
     "passes": false
   },
@@ -134,10 +155,11 @@
   },
   {
     "category": "functional",
-    "description": "Locales en and da change labels and date formats; localized content strings resolve with fallback",
+    "description": "Locales en and da change labels, month names and babel language; {en, da} content strings resolve with fallback",
     "steps": [
       "Build full-da",
-      "Headings are Danish; dates show Danish month names"
+      "Headings are Danish; dates show Danish month names",
+      "No English text from a localized string appears"
     ],
     "passes": false
   },
@@ -161,9 +183,9 @@
   },
   {
     "category": "ux",
-    "description": "PDF is tagged PDF/UA-1 and the HTML meets WCAG 2.2 AA contrast",
+    "description": "PDF is tagged PDF/UA-2 and theme colors meet WCAG 2.2 AA contrast",
     "steps": [
-      "Run veraPDF PDF/UA-1 profile on out/*.pdf: pass",
+      "Run veraPDF PDF/UA-2 profile on out/*.pdf: pass",
       "Theme token contrast check: pass"
     ],
     "passes": false
@@ -185,6 +207,15 @@
       "Open a PR",
       "Workflow is green",
       "Push a commit adding an email to examples/: workflow fails"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infra",
+    "description": "Repo guards: CI fails if content/ exists in a public repo; tracked pre-push hook refuses pushes to main",
+    "steps": [
+      "Run the guard job with private=false and content/ present: fails",
+      "git push origin HEAD:main with core.hooksPath=.githooks: refused"
     ],
     "passes": false
   }

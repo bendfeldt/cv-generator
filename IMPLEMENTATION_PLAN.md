@@ -7,8 +7,8 @@ Phases and contracts: `docs/PLAN.md` §6. Feature ledger: `feature_list.json`.
 - Phase 0: harness, skills, plan, research.
 
 ## Next
-- Waiting on the owner's answers to `docs/PLAN.md` §7 (content location, public repo, language strategy, PDF engine).
-- Then phase 1: schemas, synthetic example, `cvgen validate` with PII guard.
+- Decisions recorded in `docs/PLAN.md` §7 (private repo, `{en, da}` strings, LuaLaTeX, no HTML in v1).
+- Phase 1: schemas, synthetic example, `cvgen validate` with PII guard.
 
 ## Open issues
-- none
+- Owner to make the repo private before phase 5 (content import).

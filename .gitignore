@@ -222,9 +222,14 @@ __marimo__/
 # --- cv-generator: personal data never enters git ---
 # Generated CVs contain runtime PII.
 out/
-# Real career content and photos live outside this public repo (see docs/PLAN.md §5).
-private/
+# Photos are runtime-only (see docs/PLAN.md §5).
 *.pdf
+*.tex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.xmpi
 *.jpg
 *.jpeg
 *.png

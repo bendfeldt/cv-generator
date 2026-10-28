@@ -29,15 +29,15 @@ GitHub stars are as of 2026-10-28.
 | Data / design / locale / settings separation | 3, 4 | **Yes** | Four kinds of file: content, theme, locale, profile. |
 | Published JSON Schema → editor autocomplete + exact errors | 3, 4 | **Yes** | `schemas/*.schema.json` (JSON Schema 2020-12), linked from YAML via `# yaml-language-server: $schema=`. |
 | Compiler model: `validate` before `build` | 4 | **Yes** | `cvgen validate` is also the PII guard. |
-| Many outputs from one source | 2, 4 | **Yes** | PDF, HTML, JSON Resume, JSON-LD, Markdown, plain text. |
-| Pluggable themes | 1, 3, 12 | **Yes** | Theme = template + CSS + `theme.yaml` design tokens. Exporting JSON Resume also makes any JSON Resume theme usable. |
+| Many outputs from one source | 2, 4 | **Yes** | PDF, JSON Resume, JSON-LD, Markdown, plain text. HTML comes from any JSON Resume theme. |
+| Pluggable themes | 1, 3, 12 | **Yes** | Theme = LaTeX template + `theme.yaml` design tokens. Exporting JSON Resume also makes any JSON Resume theme usable. |
 | Build profiles (audience/language) without copying content | 5, 6 | **Yes** | `profiles/*.yaml` select, order and limit content. |
 | Tags, priority and visibility per item | 6 | **Yes** | Optional `x-tags`, `x-priority` and `x-visibility` on entries and highlights. |
 | Trim to a page budget by priority | 6 | **Later** (phase 6) | Drop the lowest-priority highlights until the page count fits. |
 | Hidden ATS keyword text | 5 | **No** | Hidden text misleads screeners. We use honest PDF Keywords metadata and an accurate plain-text output instead. |
 | ATS round-trip check (parse our own PDF) | 9 | **Yes** (test) | Extract text from the built PDF and assert that sections and dates come out in order. |
 | Job-description matching / tailoring | 6, 10, 11 | **Later**, optional | Only with a career-ops-style fact-check gate: nothing in the output that is not in the content. |
-| User data outside the code folder | 11 | **Yes** | `--content` points to a private directory or repository. This public repo holds only the engine and synthetic examples. |
+| User data outside the code folder | 11 | **Partly** | Career content (no PII) lives in `content/` of this repo once it is private; PII and the photo never touch disk outside `out/` and a deleted temp dir. |
 | GUI editor | 8 | **No** (out of scope) | YAML + schema + editor autocomplete is the editor. |
 | CI build + publish to Pages | 13 | **Partly** | CI validates and builds **synthetic** examples only. Publishing a real CV would need PII in CI, which breaks our core rule. |
 

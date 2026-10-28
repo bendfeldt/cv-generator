@@ -63,7 +63,9 @@ These outrank convenience, speed and every skill.
 
 - No personal data in any tracked file: no names, emails, phone numbers, addresses, profile URLs, photos, birth dates or ID numbers. Examples and tests use synthetic values only (`example.com`, clearly fake numbers).
 - PII is collected at runtime (prompt, or env vars for non-interactive runs), held in memory, written only into files under `out/`, and never logged.
-- `out/` and `private/` are gitignored. Never read, print, copy or commit them.
+- `out/` is gitignored. Never read, print, copy or commit it.
+- `content/` holds career content without PII and may exist only while the repo is private.
+- LaTeX runs without shell escape, and every value is escaped before it reaches a `.tex` file.
 - The PII guard (`cvgen validate`) must stay green; never weaken its rules or patterns to get a build through.
 - Run the `secret-scan` skill on every diff before committing.
 
