@@ -26,7 +26,7 @@
       "uv run cvgen validate --content examples/content exits 0",
       "grep finds no email or phone pattern in examples/"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -36,7 +36,7 @@
       "Run validate on the copy",
       "Output names the file, line and missing property; exit code 1"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -45,7 +45,7 @@
       "Run validate on each fixture in tests/fixtures/pii/forbidden-keys",
       "Each exits 1 naming the key"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -54,7 +54,7 @@
       "Run validate on each fixture in tests/fixtures/pii/patterns",
       "Each exits 1 naming file and line"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -64,7 +64,7 @@
       "Run validate --locale da on the copy",
       "Exit 1 naming the file, line and key"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
