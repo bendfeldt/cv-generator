@@ -26,6 +26,7 @@ def _property_names(node: Any) -> set[str]:
     return own.union(*map(_property_names, node.values()))
 
 
+HINTS = {"pii/phone": " (if it is a year range or a figure, write 2011-2017 or the figure in words)"}
 KNOWN_KEYS = _property_names(SCHEMA)  # the only keys safe to print: the schema's own vocabulary
 ENTRY_META_KEYS = set(SCHEMA["$defs"]["entryMeta"]["properties"])
 
@@ -33,11 +34,10 @@ PII_KEYS = {"name", "email", "phone", "url", "image", "location", "profiles"}  #
 PII_PATTERNS = {
     "pii/email": re.compile(r"[\w.%+-]+@[\w-]+(\.[\w-]+)*\.[a-z]{2,}", re.I),
     # +international; Danish with country code (45..., 0045 ...); 12 34 56 78 / 12-34-56-78 / 1234 5678 /
-    # 12345678. Not phones: year pairs (1950-2049), thousands (+20 000 000). Safety net only: PLAN.md §5.
+    # 12345678. Strict on purpose: a false positive costs a rewording, a miss leaks. Safety net: PLAN.md §5.
     "pii/phone": re.compile(
-        r"\+(?!\d{1,3}([ ,.]\d{3})+(?![ ().-]?\d))\d[\d ().-]{6,}\d"  # not +20 000 000
-        r"|\b(00 ?)?45 ?\d{8}\b|\b\d{2}([ .-]?)\d{2}\3\d{2}\3\d{2}\b"
-        r"|\b(?!(19[5-9]\d|20[0-4]\d)[ .-](19[5-9]\d|20[0-4]\d)\b)\d{4}[ .-]\d{4}\b"  # not 2011 2017
+        r"\+\d[\d ().-]{6,}\d|\b(00 ?)?45 ?\d{8}\b|\b\d{2}([ .-]?)\d{2}\2\d{2}\2\d{2}\b"
+        r"|\b(?!(19[5-9]\d|20[0-4]\d)-(19[5-9]\d|20[0-4]\d)\b)\d{4}[ .-]\d{4}\b"  # 2011-2017 is a year range
     ),
     "pii/cpr": re.compile(r"\b(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])\d{2}[ -]?\d{4}\b"),
     "pii/profile-url": re.compile(
@@ -168,7 +168,11 @@ def validate_content(file: Path, locale: str | None = None) -> list[Finding]:
         # numbers too: an unquoted 12345678 is an int, not a string
         if isinstance(value, str | int | float) and not isinstance(value, bool):
             for rule in _pii_rules(str(value)):
-                findings.append(Finding(file, line(path), rule, f"{dotted(path)} contains personal data"))
+                findings.append(
+                    Finding(
+                        file, line(path), rule, f"{dotted(path)} contains personal data{HINTS.get(rule, '')}"
+                    )
+                )
         if locale and _is_localized(value) and locale not in value:
             findings.append(
                 Finding(file, line(path), "i18n/missing", f"{dotted(path)} has no '{locale}' text")
