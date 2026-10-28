@@ -13,8 +13,21 @@ from cvgen.load import KeyPath, LoadError, load_yaml
 
 # shortcut: schemas are read from the repo checkout, fine under `uv run`; package them if cvgen is published.
 SCHEMAS = Path(__file__).parents[2] / "schemas"
+SCHEMA = json.loads((SCHEMAS / "content.schema.json").read_text(encoding="utf-8"))
 LANG = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
-IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]*$")
+
+
+def _property_names(node: Any) -> set[str]:
+    if isinstance(node, list):
+        return set().union(*map(_property_names, node))
+    if not isinstance(node, dict):
+        return set()
+    own = set(node.get("properties", {}))
+    return own.union(*map(_property_names, node.values()))
+
+
+KNOWN_KEYS = _property_names(SCHEMA)  # the only keys safe to print: the schema's own vocabulary
+ENTRY_META_KEYS = set(SCHEMA["$defs"]["entryMeta"]["properties"])
 
 PII_KEYS = {"name", "email", "phone", "url", "image", "location", "profiles"}  # forbidden under basics
 PII_PATTERNS = {
@@ -44,8 +57,8 @@ class Finding:
 
 
 def _key(key: str) -> str:
-    """A key fit to print: identifiers such as startDate; anything else could be personal data."""
-    return key if IDENT.match(key) and not _pii_rules(key) else "***"
+    """A key fit to print: one the schema defines or a language code. Anything else may be personal data."""
+    return key if key in KNOWN_KEYS or LANG.match(key) else "***"
 
 
 def dotted(path: KeyPath) -> str:
@@ -86,8 +99,8 @@ def _mask(text: str) -> str:
 def _schema_message(err) -> str:
     if err.validator is None:
         return "not allowed here"
-    if err.validator in ("required", "additionalProperties", "unevaluatedProperties"):
-        return re.sub(r"'([^']*)'", lambda m: f"'{_key(m.group(1))}'", err.message)  # names keys only
+    if err.validator == "required":
+        return err.message  # names schema keys only
     if err.validator == "anyOf":
         return "is neither a string, a {en: ..., da: ...} map, nor an allowed object"
     return f"fails {err.validator} {json.dumps(err.validator_value)}"
@@ -124,9 +137,17 @@ def validate_content(file: Path, locale: str | None = None) -> list[Finding]:
     checked = (
         {**data, "basics": {k: v for k, v in basics.items() if k not in PII_KEYS}} if pii_paths else data
     )
-    schema = json.loads((SCHEMAS / "content.schema.json").read_text(encoding="utf-8"))
-    for err in Draft202012Validator(schema).iter_errors(checked):
+    for err in Draft202012Validator(SCHEMA).iter_errors(checked):
         path = tuple(err.absolute_path)
+        if err.validator in ("additionalProperties", "unevaluatedProperties"):
+            # one finding per unexpected key, on its own line, since the key itself may not be printable
+            allowed = set(err.schema.get("properties", {}))
+            if err.validator == "unevaluatedProperties":  # entries: their own keys plus entryMeta
+                allowed |= ENTRY_META_KEYS
+            for key in (k for k in err.instance if k not in allowed):
+                message = f"{dotted(path)}: unexpected key '{_key(key)}'"
+                findings.append(Finding(file, line((*path, key)), "schema/unexpected-key", message))
+            continue
         findings.append(
             Finding(
                 file,

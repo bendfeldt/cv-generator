@@ -81,7 +81,9 @@ def test_pii_in_key_is_reported_and_masked(tmp_path, capsys):
     assert "someone@example.com" not in out
 
 
-@pytest.mark.parametrize("rule, number", [("pii/phone", "12345678"), ("pii/cpr", "0101901234")])
+@pytest.mark.parametrize(
+    "rule, number", [("pii/phone", "12345678"), ("pii/phone", "+4512345678"), ("pii/cpr", "0101901234")]
+)
 def test_pii_in_unquoted_number(tmp_path, capsys, rule, number):
     raw = f"schemaVersion: 1\nbasics: {{}}\nx-narrative:\n  - id: a\n    title: T\n    body: {number}\n"
     (tmp_path / "cv.yaml").write_text(raw, encoding="utf-8")
@@ -101,6 +103,8 @@ def test_pii_in_unquoted_number(tmp_path, capsys, rule, number):
             None,
         ),
         ("schemaVersion: 1\nbasics: {}\nx-narrative: [{id: a, title: T, Anna Hansen: {en: x}}]\n", "de"),
+        ("schemaVersion: 1\nbasics: {}\nwork: [{name: A, startDate: '2020', Anna: x}]\n", None),
+        ("schemaVersion: 1\nbasics: {}\nx-narrative: [{id: a, title: {en: T, Anna: U}}]\n", "de"),
     ],
 )
 def test_keys_that_are_not_identifiers_are_never_printed(tmp_path, capsys, raw, locale):
@@ -130,11 +134,16 @@ def test_schema_error_has_line(tmp_path, capsys):
 
 
 def test_unknown_key_is_rejected(tmp_path, capsys):
-    text = write_cv(tmp_path, lambda d: d["work"][0].update({"startdate": "2020-01"}))
+    text = write_cv(tmp_path, lambda d: d["work"][0].update({"startdate": "2020-01", "issuer": "x"}))
     code, out = run(capsys, "--content", str(tmp_path))
     assert code == 1
-    assert f"cv.yaml:{line_of(text, 'id: northwind')}: schema/unevaluatedProperties:" in out
-    assert "startdate" in out
+    # reported on the key's own line; shown only when it is a key the schema knows elsewhere
+    assert (
+        f"cv.yaml:{line_of(text, 'startdate:')}: schema/unexpected-key: work[0]: unexpected key '***'" in out
+    )
+    assert (
+        f"cv.yaml:{line_of(text, 'issuer:')}: schema/unexpected-key: work[0]: unexpected key 'issuer'" in out
+    )
 
 
 def test_missing_translation(tmp_path, capsys):
@@ -212,3 +221,11 @@ def test_missing_content_file(tmp_path, capsys):
     code, out = run(capsys, "--content", str(tmp_path))
     assert code == 2
     assert "cv.yaml" in out
+
+
+def test_entry_date_key_is_unexpected_outside_entries(tmp_path, capsys):
+    text = write_cv(tmp_path, lambda d: d["certificates"][0].update({"startDate": "1999"}))
+    code, out = run(capsys, "--content", str(tmp_path))
+    assert code == 1
+    expected = "schema/unexpected-key: certificates[0]: unexpected key 'startDate'"
+    assert f"cv.yaml:{line_of(text, "startDate: '1999'")}: {expected}" in out

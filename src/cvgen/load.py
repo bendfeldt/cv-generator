@@ -11,8 +11,8 @@ KeyPath = tuple[str | int, ...]
 # YAML 1.2 core schema (PyYAML resolves YAML 1.1, where `no` is false and `1_000` is an int).
 _NULL = re.compile(r"~|null|Null|NULL|")
 _BOOL = re.compile(r"true|True|TRUE|false|False|FALSE")
-# Deviation: digits with a leading zero stay a string (0101901234 is an ID, e.g. a CPR number).
-_ID_DIGITS = re.compile(r"[-+]?0[0-9]+")
+# Deviation: digits with a leading zero or a + stay a string: IDs and phone numbers (0101901234, +4512345678).
+_ID_DIGITS = re.compile(r"[-+]?0[0-9]+|\+[0-9]+")
 _INT = re.compile(r"[-+]?[0-9]+|0o[0-7]+|0x[0-9a-fA-F]+")
 _FLOAT = re.compile(
     r"[-+]?(\.[0-9]+|[0-9]+(\.[0-9]*)?)([eE][-+]?[0-9]+)?|[-+]?\.(inf|Inf|INF)|\.(nan|NaN|NAN)"
