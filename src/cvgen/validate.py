@@ -57,8 +57,8 @@ class Finding:
 
 
 def _key(key: str) -> str:
-    """A key fit to print: one the schema defines or a language code. Anything else may be personal data."""
-    return key if key in KNOWN_KEYS or LANG.match(key) else "***"
+    """A key fit to print: one the schema defines. Anything else, even a language code, may be a name."""
+    return key if key in KNOWN_KEYS else "***"
 
 
 def dotted(path: KeyPath) -> str:

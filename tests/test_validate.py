@@ -105,13 +105,16 @@ def test_pii_in_unquoted_number(tmp_path, capsys, rule, number):
         ("schemaVersion: 1\nbasics: {}\nx-narrative: [{id: a, title: T, Anna Hansen: {en: x}}]\n", "de"),
         ("schemaVersion: 1\nbasics: {}\nwork: [{name: A, startDate: '2020', Anna: x}]\n", None),
         ("schemaVersion: 1\nbasics: {}\nx-narrative: [{id: a, title: {en: T, Anna: U}}]\n", "de"),
+        ("schemaVersion: 1\nbasics: {}\nwork: [{name: A, startDate: '2020', eva: x}]\n", None),
+        ("schemaVersion: 1\nbasics: {}\nwork: [{name: A, startDate: '2020', jan: {en: x}}]\n", "de"),
     ],
 )
 def test_keys_that_are_not_identifiers_are_never_printed(tmp_path, capsys, raw, locale):
     (tmp_path / "cv.yaml").write_text(raw, encoding="utf-8")
     code, out = run(capsys, "--content", str(tmp_path), *(["--locale", locale] if locale else []))
     assert code == 1
-    assert "Anna" not in out
+    for name in ("Anna", "eva", "jan"):
+        assert name not in out
 
 
 def test_no_false_positives_on_years_and_percentages(tmp_path, capsys):
@@ -167,12 +170,15 @@ def test_unknown_employer_reference(tmp_path, capsys):
 
 
 def test_yaml_12_scalars(tmp_path):
-    raw = "a: no\nb: 2024-03-01\nc: yes\nd: true\ne: 3\nf: ~\ng: 1_000\nh: 1e3\ni: 0x1F\nj: 'q'\n"
+    raw = (
+        "a: no\nb: 2024-03-01\nc: yes\nd: true\ne: 3\nf: ~\ng: 1_000\nh: 1e3\ni: 0x1F\nj: 'q'\n"
+        "k: +1\nl: +4512345678\n"
+    )
     (tmp_path / "x.yaml").write_text(raw, encoding="utf-8")
     data, lines = load_yaml(tmp_path / "x.yaml")
     assert data == {
         "a": "no", "b": "2024-03-01", "c": "yes", "d": True, "e": 3, "f": None,
-        "g": "1_000", "h": 1000.0, "i": 31, "j": "q",
+        "g": "1_000", "h": 1000.0, "i": 31, "j": "q", "k": 1, "l": "+4512345678",
     }  # fmt: skip
     assert lines[("b",)] == 2
 
