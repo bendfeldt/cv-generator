@@ -188,7 +188,7 @@ controls below make up for that.
 
 | Risk | Control |
 |---|---|
-| PII committed in content | Content schema forbids PII keys; the pattern scan fails `validate` and `build`; the same scan runs in a pre-commit hook and in CI. |
+| PII committed in content | Content schema forbids PII keys; the pattern scan fails `validate` and `build`; the same scan runs in a pre-commit hook and in CI. The scan is a safety net, not proof: it knows emails, E.164 and Danish phone forms, CPR numbers and social profile URLs, but cannot recognise a name in a sentence. Findings print only schema-defined keys, never values. |
 | Career content committed while the repo is still public | `content/` is added only after the repo is private. A CI job fails if `content/` exists and `github.event.repository.private` is false, so making the repo public again is caught on the next run. |
 | PII in generated files committed | `out/`, `*.pdf`, `*.tex` outside `themes/`, and images are gitignored; CI fails if a tracked file matches. |
 | PII left on disk by LaTeX | Compilation runs in a temporary directory that is deleted after the build, also on failure. |

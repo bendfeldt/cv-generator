@@ -32,9 +32,10 @@ ENTRY_META_KEYS = set(SCHEMA["$defs"]["entryMeta"]["properties"])
 PII_KEYS = {"name", "email", "phone", "url", "image", "location", "profiles"}  # forbidden under basics
 PII_PATTERNS = {
     "pii/email": re.compile(r"[\w.%+-]+@[\w-]+(\.[\w-]+)*\.[a-z]{2,}", re.I),
-    # international; Danish 12 34 56 78 / 12-34-56-78 / 1234 5678 / 12345678; 2018-2024 is a year range.
+    # +international; Danish with country code (45..., 0045 ...); 12 34 56 78 / 12-34-56-78 / 1234 5678 /
+    # 12345678. 2018-2024 is a year range. A safety net, not proof: see docs/PLAN.md §5.
     "pii/phone": re.compile(
-        r"\+\d[\d ().-]{6,}\d|\b\d{2}([ .-]?)\d{2}\1\d{2}\1\d{2}\b"
+        r"\+\d[\d ().-]{6,}\d|\b(00 ?)?45 ?\d{8}\b|\b\d{2}([ .-]?)\d{2}\2\d{2}\2\d{2}\b"
         r"|\b(?!(19|20)\d\d-(19|20)\d\d\b)\d{4}[ .-]\d{4}\b"
     ),
     "pii/cpr": re.compile(r"\b(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])\d{2}[ -]?\d{4}\b"),

@@ -49,6 +49,8 @@ PII_VALUES = [
     ("pii/phone", "12-34-56-78"),
     ("pii/phone", "1234 5678"),
     ("pii/phone", "2012 2034"),
+    ("pii/phone", "4512345678"),
+    ("pii/phone", "0045 12345678"),
     ("pii/cpr", "010190-1234"),
     ("pii/cpr", "010190 1234"),
     ("pii/profile-url", "https://www.linkedin.com/in/someone-example"),
@@ -82,7 +84,13 @@ def test_pii_in_key_is_reported_and_masked(tmp_path, capsys):
 
 
 @pytest.mark.parametrize(
-    "rule, number", [("pii/phone", "12345678"), ("pii/phone", "+4512345678"), ("pii/cpr", "0101901234")]
+    "rule, number",
+    [
+        ("pii/phone", "12345678"),
+        ("pii/phone", "+4512345678"),
+        ("pii/phone", "4512345678"),
+        ("pii/cpr", "0101901234"),
+    ],
 )
 def test_pii_in_unquoted_number(tmp_path, capsys, rule, number):
     raw = f"schemaVersion: 1\nbasics: {{}}\nx-narrative:\n  - id: a\n    title: T\n    body: {number}\n"
