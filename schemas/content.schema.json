@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bendfeldt/cv-generator/schemas/content.schema.json",
+  "title": "cv-generator content",
+  "description": "JSON Resume 1.0.0 sections without any personal data. Text that differs per language is a map of BCP 47 codes to strings. Extensions use x- keys. `references` is left out: it holds third-party personal data.",
+  "type": "object",
+  "required": ["schemaVersion", "basics"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "canonical": { "$ref": "#/$defs/url" },
+        "version": { "type": "string" },
+        "lastModified": { "type": "string" }
+      }
+    },
+    "basics": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Name, contact details, links, location and photo are asked for at build time and must not appear here.",
+      "properties": {
+        "label": { "$ref": "#/$defs/text" },
+        "summary": { "$ref": "#/$defs/text" },
+        "name": false,
+        "email": false,
+        "phone": false,
+        "url": false,
+        "image": false,
+        "location": false,
+        "profiles": false
+      }
+    },
+    "x-narrative": {
+      "type": "array",
+      "description": "Free sections that JSON Resume lacks, such as 'The Architectural Approach'.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "title": { "$ref": "#/$defs/text" },
+          "body": { "$ref": "#/$defs/text" },
+          "bullets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["text"],
+              "additionalProperties": false,
+              "properties": { "term": { "$ref": "#/$defs/text" }, "text": { "$ref": "#/$defs/text" } }
+            }
+          },
+          "x-tags": { "$ref": "#/$defs/tags" },
+          "x-priority": { "$ref": "#/$defs/priority" },
+          "x-visibility": { "$ref": "#/$defs/visibility" }
+        }
+      }
+    },
+    "work": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "startDate"],
+        "$ref": "#/$defs/entryMeta",
+        "unevaluatedProperties": false,
+        "properties": {
+          "id": { "$ref": "#/$defs/id" },
+          "name": { "$ref": "#/$defs/text" },
+          "location": { "$ref": "#/$defs/text" },
+          "description": { "$ref": "#/$defs/text" },
+          "position": { "$ref": "#/$defs/text" },
+          "url": { "$ref": "#/$defs/url" },
+          "summary": { "$ref": "#/$defs/text" },
+          "highlights": { "$ref": "#/$defs/highlights" }
+        }
+      }
+    },
+    "volunteer": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["organization", "startDate"],
+        "$ref": "#/$defs/entryMeta",
+        "unevaluatedProperties": false,
+        "properties": {
+          "organization": { "$ref": "#/$defs/text" },
+          "position": { "$ref": "#/$defs/text" },
+          "url": { "$ref": "#/$defs/url" },
+          "summary": { "$ref": "#/$defs/text" },
+          "highlights": { "$ref": "#/$defs/highlights" }
+        }
+      }
+    },
+    "education": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["institution"],
+        "$ref": "#/$defs/entryMeta",
+        "unevaluatedProperties": false,
+        "properties": {
+          "institution": { "$ref": "#/$defs/text" },
+          "url": { "$ref": "#/$defs/url" },
+          "area": { "$ref": "#/$defs/text" },
+          "studyType": { "$ref": "#/$defs/text" },
+          "score": { "type": "string" },
+          "courses": { "type": "array", "items": { "$ref": "#/$defs/text" } }
+        }
+      }
+    },
+    "awards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["title"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "$ref": "#/$defs/text" },
+          "date": { "$ref": "#/$defs/date" },
+          "awarder": { "$ref": "#/$defs/text" },
+          "summary": { "$ref": "#/$defs/text" },
+          "x-tags": { "$ref": "#/$defs/tags" },
+          "x-priority": { "$ref": "#/$defs/priority" },
+          "x-visibility": { "$ref": "#/$defs/visibility" }
+        }
+      }
+    },
+    "certificates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "date": { "$ref": "#/$defs/date" },
+          "issuer": { "$ref": "#/$defs/text" },
+          "url": { "$ref": "#/$defs/url" },
+          "x-code": { "type": "string", "description": "Exam or credential code, e.g. DP-600." },
+          "x-tags": { "$ref": "#/$defs/tags" },
+          "x-priority": { "$ref": "#/$defs/priority" },
+          "x-visibility": { "$ref": "#/$defs/visibility" }
+        }
+      }
+    },
+    "publications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "publisher": { "$ref": "#/$defs/text" },
+          "releaseDate": { "$ref": "#/$defs/date" },
+          "url": { "$ref": "#/$defs/url" },
+          "summary": { "$ref": "#/$defs/text" },
+          "x-tags": { "$ref": "#/$defs/tags" },
+          "x-priority": { "$ref": "#/$defs/priority" },
+          "x-visibility": { "$ref": "#/$defs/visibility" }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "level": { "type": "string", "description": "A level on the scale given in x-scale, e.g. \"4\"." },
+          "keywords": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+          "x-scale": { "type": "string", "pattern": "^\\d+-\\d+$", "description": "e.g. 1-5" },
+          "x-esco": { "$ref": "#/$defs/url", "description": "ESCO skill URI." },
+          "x-tags": { "$ref": "#/$defs/tags" },
+          "x-priority": { "$ref": "#/$defs/priority" },
+          "x-visibility": { "$ref": "#/$defs/visibility" }
+        }
+      }
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["language", "fluency"],
+        "additionalProperties": false,
+        "properties": {
+          "language": { "$ref": "#/$defs/lang", "description": "BCP 47 code, e.g. da." },
+          "fluency": { "enum": ["A1", "A2", "B1", "B2", "C1", "C2", "native"], "description": "CEFR level or native." }
+        }
+      }
+    },
+    "interests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "keywords": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+          "x-visibility": { "$ref": "#/$defs/visibility" }
+        }
+      }
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "$ref": "#/$defs/entryMeta",
+        "unevaluatedProperties": false,
+        "properties": {
+          "name": { "$ref": "#/$defs/text" },
+          "description": { "$ref": "#/$defs/text" },
+          "highlights": { "$ref": "#/$defs/highlights" },
+          "keywords": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+          "url": { "$ref": "#/$defs/url" },
+          "roles": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+          "entity": { "$ref": "#/$defs/text" },
+          "type": { "type": "string" },
+          "x-employer": { "$ref": "#/$defs/id", "description": "id of the work entry this project was done under." }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "lang": { "type": "string", "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$" },
+    "localized": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/lang" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "text": {
+      "description": "A plain string (same in every language) or a map such as {en: ..., da: ...}.",
+      "anyOf": [{ "type": "string", "minLength": 1 }, { "$ref": "#/$defs/localized" }]
+    },
+    "date": {
+      "type": "string",
+      "description": "ISO 8601: YYYY, YYYY-MM or YYYY-MM-DD.",
+      "pattern": "^\\d{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$"
+    },
+    "url": { "type": "string", "pattern": "^https?://\\S+$" },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "tags": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z0-9-]+$" } },
+    "priority": { "type": "integer", "minimum": 1, "maximum": 9, "description": "1 is most important." },
+    "visibility": { "enum": ["public", "private"] },
+    "highlights": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          { "$ref": "#/$defs/text" },
+          {
+            "type": "object",
+            "required": ["text"],
+            "additionalProperties": false,
+            "properties": {
+              "text": { "$ref": "#/$defs/text" },
+              "x-tags": { "$ref": "#/$defs/tags" },
+              "x-priority": { "$ref": "#/$defs/priority" },
+              "x-visibility": { "$ref": "#/$defs/visibility" }
+            }
+          }
+        ]
+      }
+    },
+    "entryMeta": {
+      "properties": {
+        "startDate": { "$ref": "#/$defs/date" },
+        "endDate": { "$ref": "#/$defs/date" },
+        "x-tags": { "$ref": "#/$defs/tags" },
+        "x-priority": { "$ref": "#/$defs/priority" },
+        "x-visibility": { "$ref": "#/$defs/visibility" }
+      }
+    }
+  }
+}

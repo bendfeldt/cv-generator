@@ -1,0 +1,115 @@
+# yaml-language-server: $schema=../../schemas/content.schema.json
+# Synthetic example: a fictional person at fictional companies. No personal data:
+# name, contact details, links and photo are asked for at build time.
+schemaVersion: 1
+
+basics:
+  label: { en: Senior Data Architect, da: Senior dataarkitekt }
+  summary:
+    en: >-
+      Data architect with over {years_experience} years of experience across retail, energy and logistics.
+      I turn business needs into data platforms people trust, and I enjoy making complex things simple.
+    da: >-
+      Dataarkitekt med over {years_experience} års erfaring inden for detail, energi og logistik.
+      Jeg omsætter forretningsbehov til dataplatforme, som folk har tillid til, og jeg kan lide at gøre det komplekse enkelt.
+
+x-narrative:
+  - id: approach
+    title: { en: "The Architectural Approach", da: "Den arkitektoniske tilgang" }
+    body:
+      en: I prefer one coherent platform over many small solutions.
+      da: Jeg foretrækker én sammenhængende platform frem for mange små løsninger.
+    bullets:
+      - term: { en: Platform Leadership, da: Platformledelse }
+        text:
+          en: Responsible for requirements, development and operation of platform projects.
+          da: Ansvarlig for krav, udvikling og drift af platformprojekter.
+      - term: { en: Strategic Oversight, da: Strategisk overblik }
+        text:
+          en: Break goals into tasks, delegate, and estimate complexity.
+          da: Nedbryder mål til opgaver, uddelegerer og estimerer kompleksitet.
+
+work:
+  - id: northwind
+    name: Northwind Data A/S
+    position: { en: Lead Data Architect, da: Ledende dataarkitekt }
+    location: { en: Copenhagen, da: København }
+    url: https://northwind.example.com
+    startDate: 2022-03
+    summary:
+      en: Lead architect and delivery manager for data platform projects.
+      da: Ledende arkitekt og leveranceansvarlig på dataplatformprojekter.
+    x-tags: [architecture, leadership]
+  - id: contoso
+    name: Contoso Analytics
+    position: { en: Business Intelligence Consultant, da: Business intelligence-konsulent }
+    location: Aarhus
+    startDate: 2018-09
+    endDate: 2022-02
+    summary:
+      en: Built semantic models and reporting for clients in retail and energy.
+      da: Byggede semantiske modeller og rapportering til kunder inden for detail og energi.
+    highlights:
+      - text:
+          en: Migrated a legacy OLAP cube to a tabular model, cutting refresh time by 60%.
+          da: Migrerede en ældre OLAP-kube til en tabulær model og reducerede opdateringstiden med 60 %.
+        x-priority: 1
+        x-tags: [modelling]
+      - { en: Coached two junior consultants., da: Var mentor for to juniorkonsulenter. }
+    x-tags: [modelling]
+
+projects:
+  - name: Fabrikam Energy
+    x-employer: northwind
+    startDate: 2024-06
+    description:
+      en: Lakehouse platform and migration from a legacy warehouse.
+      da: Lakehouse-platform og migrering fra et ældre datavarehus.
+    highlights:
+      - text:
+          en: Designed the **lakehouse** architecture and CI/CD for all data pipelines.
+          da: Designede **lakehouse**-arkitekturen og CI/CD for alle datapipelines.
+        x-priority: 1
+        x-tags: [architecture]
+      - en: Reviewed all platform code to keep it modular.
+        da: Gennemgik al platformkode for at holde den modulær.
+    x-tags: [architecture]
+  - name: Tailspin Logistics
+    x-employer: northwind
+    startDate: 2022-04
+    endDate: 2024-05
+    description:
+      en: Core data model behind 90% of reporting in one business unit.
+      da: Central datamodel bag 90 % af rapporteringen i én forretningsenhed.
+    x-tags: [modelling]
+
+education:
+  - institution: Example University
+    area: { en: Economics, da: Økonomi }
+    studyType: { en: Master of Science, da: Cand.oecon. }
+    startDate: 2011-09
+    endDate: 2017-06
+
+certificates:
+  - name: Fabric Analytics Engineer Associate
+    issuer: Microsoft
+    x-code: DP-600
+  - name: Azure Fundamentals
+    issuer: Microsoft
+    x-code: AZ-900
+
+skills:
+  - { name: Data Modelling, level: "5", x-scale: 1-5 }
+  - { name: SQL, level: "5", x-scale: 1-5 }
+  - { name: Python, level: "4", x-scale: 1-5 }
+  - { name: { en: Stakeholder Management, da: Interessenthåndtering }, level: "4", x-scale: 1-5 }
+
+languages:
+  - { language: da, fluency: native }
+  - { language: en, fluency: C2 }
+
+interests:
+  - name: { en: Hiking, da: Vandreture }
+    keywords:
+      - { en: long-distance trails, da: lange vandreruter }
+  - name: { en: Gardening, da: Havearbejde }

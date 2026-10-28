@@ -3,7 +3,7 @@ A CLI that builds a CV (PDF via LuaLaTeX, JSON Resume, JSON-LD, Markdown, text) 
 
 ## Done when
 - `uv run pytest` and `uv run ruff check .` are green.
-- `uv run cvgen validate --content examples/content` exits 0, and every fixture in `tests/fixtures/pii/` exits 1.
+- `uv run cvgen validate --content examples/content` exits 0, and every generated PII case in `tests/test_validate.py` exits 1.
 - `CVGEN_PII_*=<synthetic> uv run cvgen build --profile full-en --content examples/content --no-input` writes all five formats to `out/`, and `--profile full-da` does the same in Danish.
 - Every entry in `feature_list.json` has `passes: true`.
 
