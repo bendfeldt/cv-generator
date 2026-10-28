@@ -11,6 +11,8 @@ KeyPath = tuple[str | int, ...]
 # YAML 1.2 core schema (PyYAML resolves YAML 1.1, where `no` is false and `1_000` is an int).
 _NULL = re.compile(r"~|null|Null|NULL|")
 _BOOL = re.compile(r"true|True|TRUE|false|False|FALSE")
+# Deviation: digits with a leading zero stay a string (0101901234 is an ID, e.g. a CPR number).
+_ID_DIGITS = re.compile(r"[-+]?0[0-9]+")
 _INT = re.compile(r"[-+]?[0-9]+|0o[0-7]+|0x[0-9a-fA-F]+")
 _FLOAT = re.compile(
     r"[-+]?(\.[0-9]+|[0-9]+(\.[0-9]*)?)([eE][-+]?[0-9]+)?|[-+]?\.(inf|Inf|INF)|\.(nan|NaN|NAN)"
@@ -26,6 +28,8 @@ class LoadError(ValueError):
 def _scalar(node: yaml.ScalarNode) -> Any:
     value = node.value
     if node.style is not None:  # quoted or block scalar: always a string
+        return value
+    if _ID_DIGITS.fullmatch(value):
         return value
     if _NULL.fullmatch(value):
         return None
@@ -64,7 +68,7 @@ def load_yaml(path: Path) -> tuple[Any, dict[KeyPath, int]]:
                     key = key_node.value
                     if key in out:
                         raise LoadError(
-                            "yaml/duplicate-key", f"key '{key}' appears twice in the same mapping", key_line
+                            "yaml/duplicate-key", "a key appears twice in the same mapping", key_line
                         )
                     lines[(*at, key)] = key_line
                     out[key] = build(value_node, (*at, key))

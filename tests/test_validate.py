@@ -48,10 +48,12 @@ PII_VALUES = [
     ("pii/phone", "12 34 56 78"),
     ("pii/phone", "12-34-56-78"),
     ("pii/phone", "1234 5678"),
+    ("pii/phone", "2012 2034"),
     ("pii/cpr", "010190-1234"),
     ("pii/cpr", "010190 1234"),
     ("pii/profile-url", "https://www.linkedin.com/in/someone-example"),
     ("pii/profile-url", "dk.linkedin.com/in/someone-example"),
+    ("pii/profile-url", "https://linkedin.com/pub/someone/1/2/3"),
 ]
 PII_PLACES = {
     "localized-in-list": lambda d, v: d["work"][1]["highlights"][1].update({"da": f"Kontakt {v} for mere."}),
@@ -79,20 +81,39 @@ def test_pii_in_key_is_reported_and_masked(tmp_path, capsys):
     assert "someone@example.com" not in out
 
 
-def test_pii_in_unquoted_number(tmp_path, capsys):
-    raw = "schemaVersion: 1\nbasics: {}\nx-narrative:\n  - id: a\n    title: T\n    body: 12345678\n"
+@pytest.mark.parametrize("rule, number", [("pii/phone", "12345678"), ("pii/cpr", "0101901234")])
+def test_pii_in_unquoted_number(tmp_path, capsys, rule, number):
+    raw = f"schemaVersion: 1\nbasics: {{}}\nx-narrative:\n  - id: a\n    title: T\n    body: {number}\n"
     (tmp_path / "cv.yaml").write_text(raw, encoding="utf-8")
     code, out = run(capsys, "--content", str(tmp_path))
     assert code == 1
-    assert "cv.yaml:6: pii/phone:" in out
-    assert "12345678" not in out
+    assert f"cv.yaml:6: {rule}:" in out
+    assert number not in out
+
+
+@pytest.mark.parametrize(
+    "raw, locale",
+    [
+        ("schemaVersion: 1\nbasics: {}\nwork: [{name: A, startDate: '2020', Anna Hansen: x}]\n", None),
+        (
+            "schemaVersion: 1\nbasics: {}\nwork: [{name: A, startDate: '2020', Anna Hansen: x, "
+            "Anna Hansen: y}]\n",
+            None,
+        ),
+        ("schemaVersion: 1\nbasics: {}\nx-narrative: [{id: a, title: T, Anna Hansen: {en: x}}]\n", "de"),
+    ],
+)
+def test_keys_that_are_not_identifiers_are_never_printed(tmp_path, capsys, raw, locale):
+    (tmp_path / "cv.yaml").write_text(raw, encoding="utf-8")
+    code, out = run(capsys, "--content", str(tmp_path), *(["--locale", locale] if locale else []))
+    assert code == 1
+    assert "Anna" not in out
 
 
 def test_no_false_positives_on_years_and_percentages(tmp_path, capsys):
     def mutate(d):
         d["basics"]["summary"]["en"] = (
-            "From 2011 - 2017, 2011 2017 and 2018-2024 I served 90% of 1200 users in 3 countries; "
-            "see netflix.com/x."
+            "From 2011 - 2017 and 2018-2024 I served 90% of 1200 users in 3 countries; see netflix.com/x."
         )
 
     write_cv(tmp_path, mutate)
@@ -117,12 +138,13 @@ def test_unknown_key_is_rejected(tmp_path, capsys):
 
 
 def test_missing_translation(tmp_path, capsys):
-    write_cv(tmp_path, lambda d: d["projects"][1]["description"].pop("da"))
-    _, lines = load_yaml(tmp_path / "cv.yaml")
+    text = write_cv(tmp_path, lambda d: d["projects"][1]["description"].pop("da"))
     code, out = run(capsys, "--content", str(tmp_path), "--locale", "da")
     assert code == 1
     found = [ln for ln in out.splitlines() if "i18n/missing" in ln]
-    expected = lines[("projects", 1, "description")]
+    rows = text.splitlines()
+    project = line_of(text, "name: Tailspin Logistics")
+    expected = next(i for i in range(project, len(rows) + 1) if "description:" in rows[i - 1])
     assert found == [
         f"{tmp_path / 'cv.yaml'}:{expected}: i18n/missing: projects[1].description has no 'da' text"
     ]
@@ -169,6 +191,7 @@ def test_duplicate_key(tmp_path, capsys):
     [
         (b"schemaVersion: 1\nbasics: {}\n? [a]\n: b\n", "yaml/key"),
         (b"schemaVersion: 1\nbasics: &a {label: *a}\n", "yaml/recursive-alias"),
+        (b"schemaVersion: 1\nbasics: {}\nwork: 5\nprojects: 5\n", "schema/type"),
         (b'schemaVersion: 1\nbasics: {label: "a\x01b"}\n', "yaml/syntax"),
         (b"schemaVersion: 1\nbasics: {label: \xff\xfe}\n", "yaml/encoding"),
         (
