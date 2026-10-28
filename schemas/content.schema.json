@@ -1,6 +1,5 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bendfeldt/cv-generator/schemas/content.schema.json",
   "title": "cv-generator content",
   "description": "JSON Resume 1.0.0 sections without any personal data. Text that differs per language is a map of BCP 47 codes to strings. Extensions use x- keys. `references` is left out: it holds third-party personal data.",
   "type": "object",
