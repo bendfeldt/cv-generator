@@ -48,7 +48,6 @@ PII_VALUES = [
     ("pii/phone", "12 34 56 78"),
     ("pii/phone", "12-34-56-78"),
     ("pii/phone", "1234 5678"),
-    ("pii/phone", "2012 2034"),
     ("pii/phone", "4512345678"),
     ("pii/phone", "0045 12345678"),
     ("pii/cpr", "010190-1234"),
@@ -128,7 +127,8 @@ def test_keys_that_are_not_identifiers_are_never_printed(tmp_path, capsys, raw, 
 def test_no_false_positives_on_years_and_percentages(tmp_path, capsys):
     def mutate(d):
         d["basics"]["summary"]["en"] = (
-            "From 2011 - 2017 and 2018-2024 I served 90% of 1200 users in 3 countries; see netflix.com/x."
+            "From 2011 - 2017 and 2018-2024 I served 90% of 1200 users in 3 countries; see netflix.com/x. "
+            "1999 2000, 2010 2015; grew revenue +20 000 000 and +1,500 users."
         )
 
     write_cv(tmp_path, mutate)

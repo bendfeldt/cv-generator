@@ -33,10 +33,11 @@ PII_KEYS = {"name", "email", "phone", "url", "image", "location", "profiles"}  #
 PII_PATTERNS = {
     "pii/email": re.compile(r"[\w.%+-]+@[\w-]+(\.[\w-]+)*\.[a-z]{2,}", re.I),
     # +international; Danish with country code (45..., 0045 ...); 12 34 56 78 / 12-34-56-78 / 1234 5678 /
-    # 12345678. 2018-2024 is a year range. A safety net, not proof: see docs/PLAN.md §5.
+    # 12345678. Not phones: year pairs (1950-2049), thousands (+20 000 000). Safety net only: PLAN.md §5.
     "pii/phone": re.compile(
-        r"\+\d[\d ().-]{6,}\d|\b(00 ?)?45 ?\d{8}\b|\b\d{2}([ .-]?)\d{2}\2\d{2}\2\d{2}\b"
-        r"|\b(?!(19|20)\d\d-(19|20)\d\d\b)\d{4}[ .-]\d{4}\b"
+        r"\+(?!\d{1,3}([ ,.]\d{3})+(?![ ().-]?\d))\d[\d ().-]{6,}\d"  # not +20 000 000
+        r"|\b(00 ?)?45 ?\d{8}\b|\b\d{2}([ .-]?)\d{2}\3\d{2}\3\d{2}\b"
+        r"|\b(?!(19[5-9]\d|20[0-4]\d)[ .-](19[5-9]\d|20[0-4]\d)\b)\d{4}[ .-]\d{4}\b"  # not 2011 2017
     ),
     "pii/cpr": re.compile(r"\b(0[1-9]|[12]\d|3[01])(0[1-9]|1[0-2])\d{2}[ -]?\d{4}\b"),
     "pii/profile-url": re.compile(
