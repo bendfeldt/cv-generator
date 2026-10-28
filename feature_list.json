@@ -1,0 +1,191 @@
+[
+  {
+    "category": "infra",
+    "description": "Project scaffold: uv project with cvgen entry point; ruff and pytest run",
+    "steps": [
+      "uv sync",
+      "uv run cvgen --help prints commands validate and build",
+      "uv run pytest exits 0"
+    ],
+    "passes": false
+  },
+  {
+    "category": "data",
+    "description": "JSON Schemas for content, profile, theme, locale and pii-fields files",
+    "steps": [
+      "Open examples/content/cv.yaml in an editor with YAML language server",
+      "Autocompletion lists JSON Resume sections",
+      "uv run cvgen validate --content examples/content exits 0"
+    ],
+    "passes": false
+  },
+  {
+    "category": "data",
+    "description": "Synthetic example CV covering every section, with no real personal data",
+    "steps": [
+      "uv run cvgen validate --content examples/content exits 0",
+      "grep finds no email or phone pattern in examples/"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "validate reports schema errors with file, line and rule",
+    "steps": [
+      "Remove work[0].startDate in a copy of the example",
+      "Run validate on the copy",
+      "Output names the file, line and missing property; exit code 1"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "PII guard rejects forbidden basics keys (name, email, phone, url, location, profiles, image)",
+    "steps": [
+      "Run validate on each fixture in tests/fixtures/pii/forbidden-keys",
+      "Each exits 1 naming the key"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "PII guard rejects email, phone, CPR-like and personal profile URL patterns in any string",
+    "steps": [
+      "Run validate on each fixture in tests/fixtures/pii/patterns",
+      "Each exits 1 naming file and line"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Runtime prompt asks for the fields the profile requires and validates each answer",
+    "steps": [
+      "Run cvgen build --profile full-en",
+      "Enter an invalid email",
+      "Prompt repeats with the format rule",
+      "Enter valid values; build continues"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Non-interactive mode reads CVGEN_PII_* env vars and fails clearly if one is missing",
+    "steps": [
+      "Unset CVGEN_PII_EMAIL",
+      "Run build with --no-input",
+      "Exit 1 naming CVGEN_PII_EMAIL"
+    ],
+    "passes": false
+  },
+  {
+    "category": "data",
+    "description": "PII values never appear in logs, tracebacks or files outside out/",
+    "steps": [
+      "Run build with synthetic PII and --verbose",
+      "grep the console output and the repo (excluding out/) for each value: no hit"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "JSON Resume export validates against the official JSON Resume schema",
+    "steps": [
+      "Build full-en",
+      "Validate out/*.json against the JSON Resume 1.0.0 schema: pass"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "schema.org JSON-LD export describes a Person with roles, credentials and skills",
+    "steps": [
+      "Build full-en",
+      "Parse out/*.jsonld; @type is Person; hasOccupation/hasCredential present"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ux",
+    "description": "sidebar theme renders HTML with sidebar and main regions from the profile",
+    "steps": [
+      "Build full-en",
+      "Open out/*.html",
+      "Sidebar shows photo, contact, skills, languages; main shows summary, work, projects"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "PDF output built from the same HTML, A4, fonts embedded",
+    "steps": [
+      "Build full-en",
+      "pdffonts shows embedded fonts; page size is A4"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Profiles filter, order and limit projects and highlights",
+    "steps": [
+      "Build architect-short-en",
+      "Projects count <= profile max; order is newest first"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Locales en and da change labels and date formats; localized content strings resolve with fallback",
+    "steps": [
+      "Build full-da",
+      "Headings are Danish; dates show Danish month names"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Computed values such as {years_experience} are filled from work dates",
+    "steps": [
+      "Build full-en",
+      "Summary shows the number of years since the first work startDate"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Markdown and plain-text (ATS) outputs",
+    "steps": [
+      "Build full-en",
+      "out/*.md and out/*.txt contain every section heading and each entry's title and dates"
+    ],
+    "passes": false
+  },
+  {
+    "category": "ux",
+    "description": "PDF is tagged PDF/UA-1 and the HTML meets WCAG 2.2 AA contrast",
+    "steps": [
+      "Run veraPDF PDF/UA-1 profile on out/*.pdf: pass",
+      "Theme token contrast check: pass"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Page budget: lowest-priority highlights are dropped until pageLimit fits",
+    "steps": [
+      "Set pageLimit: 2 in a profile",
+      "Build",
+      "PDF has <= 2 pages and the dropped highlights have the lowest x-priority"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infra",
+    "description": "CI validates, tests and builds the synthetic example; fails on any tracked PII",
+    "steps": [
+      "Open a PR",
+      "Workflow is green",
+      "Push a commit adding an email to examples/: workflow fails"
+    ],
+    "passes": false
+  }
+]

@@ -218,3 +218,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- cv-generator: personal data never enters git ---
+# Generated CVs contain runtime PII.
+out/
+# Real career content and photos live outside this public repo (see docs/PLAN.md §5).
+private/
+*.pdf
+*.jpg
+*.jpeg
+*.png
+*.heic
+!docs/assets/**
